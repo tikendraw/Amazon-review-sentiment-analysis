@@ -24,7 +24,7 @@ def load_model_and_vectorizer():
         return None, None
 
 def predict_sentiment(title, text, text_vectorizer, lstm_model):
-    review = title + ' ' + text
+    review = f'{title} {text}' # concatenate the title and text
     clean_review = utils.clean_text(review)
     review_sequence = text_vectorizer([clean_review])
     prediction = lstm_model.predict(review_sequence)
