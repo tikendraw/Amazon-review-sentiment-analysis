@@ -5,4 +5,5 @@ src/__pycache__
 logs/
 src/__pycache__/*
 **/__pycache__/
+notebook/__pycache__/*
 
