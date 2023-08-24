@@ -2,7 +2,24 @@ import re
 import pickle
 from tensorflow.keras.layers import TextVectorization
 import tensorflow as tf
+import logging
+import os
 
+
+# Configure logging
+def configure_logging(log_dir, log_filename, log_level=logging.INFO):
+    
+    log_dir = Path(log_dir).mkdir(exist_ok=True)
+    log_file = log_dir / log_filename
+    
+    # Configure logging to both console and file
+    logging.basicConfig(level=log_level,
+                        format='%(asctime)s - %(levelname)s - %(message)s',
+                        handlers=[
+                            logging.StreamHandler(),
+                            logging.FileHandler(log_file)
+                        ])
+    
 def clean_text(x):
     x = re.sub(r'[^\w\s]', '', x)
     x = x.lower()
@@ -21,10 +38,6 @@ def load_text_vectorizer(text_vectorizer, filename):
         text_vectorizer.set_weights(data['weights'])
         return text_vectorizer
 
-def get_text_vectorizer(filename):
-    with open(filename, 'rb') as f:
-        data = pickle.load(f)
-        return TextVectorization.from_config(data['config'])
 
 # src/data_preprocessing.py
 
