@@ -7,9 +7,17 @@ from src import utils, make_dataset, model
 import config
 
 # Configure logging
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
+def configure_logging(log_dir):
+    log_file = os.path.join(log_dir, "training_log.txt")
+    
+    # Configure logging to both console and file
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(levelname)s - %(message)s',
+                        handlers=[
+                            logging.StreamHandler(),
+                            logging.FileHandler(log_file)
+                        ])
+    
 def read_data(data_path, train_size = 0.2):
     logging.info('Reading data...')
     df = pl.read_csv(data_path)
@@ -19,6 +27,9 @@ def read_data(data_path, train_size = 0.2):
     return df
 
 def main():
+    
+    configure_logging(config.LOG_DIR)  # Configure logging with log directory
+    
     data_dir = Path(os.getcwd()) / 'dataset'
     data_path = data_dir / 'preprocessed_df.csv'
     
@@ -48,16 +59,17 @@ def main():
     print(lstm_model.summary())
     # Callbacks
     callbacks = [
-        tf.keras.callbacks.EarlyStopping(patience=config.EARLY_STOPPING_PATIENCE, restore_best_weights=True),
-        tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(config.MODEL_DIR, 'model_checkpoint.h5'), save_best_only=True)
+        tf.keras.callbacks.EarlyStopping(monitor='loss', patience=config.EARLY_STOPPING_PATIENCE, restore_best_weights=True),
+        tf.keras.callbacks.ModelCheckpoint(monitor='loss', filepath=os.path.join(config.MODEL_DIR, config.MODEL1_FILENAME), save_best_only=True)
     ]
     
     logging.info('Model training...')
-    lstm_history = lstm_model.fit(train_dataset, epochs=config.EPOCHS, steps_per_epoch=int(len(train_dataset) / config.EPOCHS), callbacks=callbacks)
+    lstm_history = lstm_model.fit(train_dataset, epochs=config.EPOCHS, steps_per_epoch=int(0.1*(len(train_dataset) / config.EPOCHS)), callbacks=callbacks)
     logging.info('Training Complete!')
     
     logging.info('Training history:')
     logging.info(lstm_history.history)
+    print(pl.DataFrame(lstm_history.history))
     
     # Save text vectorizer and LSTM model
     logging.info('Saving Vectorizer and Model')
