@@ -1,19 +1,24 @@
-import os
-import logging
 import polars as pl
 import tensorflow as tf
-from pathlib import Path
+from sklearn.model_selection import train_test_split
 from src import utils, make_dataset, model
 import config
 
+import os
+import logging
+from pathlib import Path
     
 def read_data(data_path, train_size = 0.2):
     logging.info('Reading data...')
     df = pl.read_csv(data_path)
-    sample_rate = int(df.shape[0] * 0.1)
-    df = df.sample(sample_rate)
-    logging.info(f'Data shape after sampling: {df.shape}')
+    print('Data shape: ', df.shape)
+
+    if train_size is None:
+        sample_rate = int(df.shape[0] * 0.1)
+        df = df.sample(sample_rate)
+        logging.info(f'Data shape after sampling: {df.shape}')
     return df
+
 
 def main():
     
@@ -21,8 +26,9 @@ def main():
     
     data_dir = Path(os.getcwd()) / 'dataset'
     data_path = data_dir / 'preprocessed_df.csv'
+    model_path = Path(config.MODEL_DIR) / config.MODEL1_FILENAME
     
-    df = read_data(data_path, config.TRAIN_SIZE)
+    df = read_data(data_path, None) #config.TRAIN_SIZE)
 
     logging.info(f'GPU count: {len(tf.config.list_physical_devices("GPU"))}')
     
@@ -38,21 +44,23 @@ def main():
         text_vectorizer = utils.load_text_vectorizer(text_vectorizer, config.TEXT_VECTOR_FILENAME)
 
     except Exception as e:
-        logging.debug(e)
-        logging.info('Exception occured while reading text_vectorizer weights, Adapting now...')
+        logging.error(e)
+        logging.info('Exception occured while reading text_vectorizer weights')
+        logging.info('Adapting now...')
         text_vectorizer.adapt(df['review'].to_numpy())
-
+        
+    logging.info(f"text vectorizer vocab size: {text_vectorizer.vocabulary_size()}")
     logging.info('Text Vectorization done!')
     
     # Create datasets
     logging.info('Preparing dataset...')
-    train_dataset = make_dataset.create_datasets(df['review'], df['polarity'], text_vectorizer, batch_size=config.BATCH_SIZE)
-    del(df)
+    xtrain, xtest, ytrain, ytest = train_test_split(df['review'], df['polarity'], test_size=.05, random_state=32, stratify=df['polarity'])
+    train_dataset = make_dataset.create_datasets(xtrain, ytrain, text_vectorizer, batch_size=config.BATCH_SIZE)
+    test_dataset = make_dataset.create_datasets(xtest, ytest, text_vectorizer, batch_size=config.BATCH_SIZE)
+
+    del(df, xtrain, xtest, ytrain, ytest)
     
-    for i, j in train_dataset.take(1):
-        print(tf.shape(i))
-        break
-    
+
     # Train LSTM model
     lstm_model = model.create_lstm_model(input_shape=(config.OUTPUT_SEQUENCE_LENGTH,), max_tokens=config.MAX_TOKEN, dim=config.DIM)
     lstm_model.compile(optimizer='adam',loss = tf.keras.losses.BinaryCrossentropy(), metrics=['Accuracy'])
@@ -63,8 +71,18 @@ def main():
         tf.keras.callbacks.ModelCheckpoint(monitor='loss', filepath=os.path.join(config.MODEL_DIR, config.MODEL1_FILENAME), save_best_only=True)
     ]
     
+    try:
+        lstm_model.load_weights(model_path) 
+        logging.info('Model weights loaded!') 
+    except Exception as e:
+        logging.error('Exception occured while loading model weights', e)
+        return
+     
     logging.info('Model training...')
-    lstm_history = lstm_model.fit(train_dataset, epochs=config.EPOCHS, steps_per_epoch=int(0.1*(len(train_dataset) / config.EPOCHS)), callbacks=callbacks)
+    lstm_history = lstm_model.fit(train_dataset, validation_data=test_dataset, epochs=config.EPOCHS, 
+                                  steps_per_epoch=int(1.0*(len(train_dataset) / config.EPOCHS)),
+                                  validation_steps=int(1.0*(len(test_dataset) / config.EPOCHS)),
+                                  callbacks=callbacks)
     logging.info('Training Complete!')
     
     logging.info('Training history:')
@@ -73,8 +91,8 @@ def main():
     
     # Save text vectorizer and LSTM model
     logging.info('Saving Vectorizer and Model')
+    lstm_model.save_weights(model_path, save_format='h5')
     utils.save_text_vectorizer(text_vectorizer, config.TEXT_VECTOR_FILENAME)
-    lstm_model.save(os.path.join(config.MODEL_DIR, config.MODEL1_FILENAME))
     logging.info('Done')
 
 if __name__ == "__main__":
