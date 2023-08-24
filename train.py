@@ -6,17 +6,6 @@ from pathlib import Path
 from src import utils, make_dataset, model
 import config
 
-# Configure logging
-def configure_logging(log_dir):
-    log_file = os.path.join(log_dir, "training_log.txt")
-    
-    # Configure logging to both console and file
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(levelname)s - %(message)s',
-                        handlers=[
-                            logging.StreamHandler(),
-                            logging.FileHandler(log_file)
-                        ])
     
 def read_data(data_path, train_size = 0.2):
     logging.info('Reading data...')
@@ -28,7 +17,7 @@ def read_data(data_path, train_size = 0.2):
 
 def main():
     
-    configure_logging(config.LOG_DIR)  # Configure logging with log directory
+    utils.configure_logging(config.LOG_DIR, "training_log.txt")  # Configure logging with log directory
     
     data_dir = Path(os.getcwd()) / 'dataset'
     data_path = data_dir / 'preprocessed_df.csv'
@@ -38,10 +27,21 @@ def main():
     logging.info(f'GPU count: {len(tf.config.list_physical_devices("GPU"))}')
     
     # Text vectorization
-    text_vectorizer = utils.get_text_vectorizer(config.TEXT_VECTOR_FILENAME)
-    logging.info('Text Vectorization adapting...')
-    # text_vectorizer.adapt(df['review'].to_numpy())
-    text_vectorizer = utils.load_text_vectorizer(text_vectorizer, config.TEXT_VECTOR_FILENAME)
+    text_vectorizer = tf.keras.layers.TextVectorization(max_tokens = config.MAX_TOKEN,
+                                                        output_sequence_length=config.OUTPUT_SEQUENCE_LENGTH,
+                                                        pad_to_max_tokens=True,
+                                                        )
+    logging.info('Text Vectorization started...')
+    
+    try:
+        logging.info('text_vectorizer loading weights...')
+        text_vectorizer = utils.load_text_vectorizer(text_vectorizer, config.TEXT_VECTOR_FILENAME)
+
+    except Exception as e:
+        logging.debug(e)
+        logging.info('Exception occured while reading text_vectorizer weights, Adapting now...')
+        text_vectorizer.adapt(df['review'].to_numpy())
+
     logging.info('Text Vectorization done!')
     
     # Create datasets
