@@ -27,6 +27,7 @@ def main():
     data_dir = Path(os.getcwd()) / 'dataset'
     data_path = data_dir / 'preprocessed_df.csv'
     model_path = Path(config.MODEL_DIR) / config.MODEL1_FILENAME
+    vectorizer_path = Path(config.MODEL_DIR) / config.TEXT_VECTOR_FILENAME
     
     df = read_data(data_path, None) #config.TRAIN_SIZE)
 
@@ -41,7 +42,7 @@ def main():
     
     try:
         logging.info('text_vectorizer loading weights...')
-        text_vectorizer = utils.load_text_vectorizer(text_vectorizer, config.TEXT_VECTOR_FILENAME)
+        text_vectorizer = utils.load_text_vectorizer(text_vectorizer, vectorizer_path)
 
     except Exception as e:
         logging.error(e)
@@ -68,7 +69,7 @@ def main():
     # Callbacks
     callbacks = [
         tf.keras.callbacks.EarlyStopping(monitor='loss', patience=config.EARLY_STOPPING_PATIENCE, restore_best_weights=True),
-        tf.keras.callbacks.ModelCheckpoint(monitor='loss', filepath=os.path.join(config.MODEL_DIR, config.MODEL1_FILENAME), save_best_only=True)
+        tf.keras.callbacks.ModelCheckpoint(monitor='loss', filepath=model_path, save_best_only=True)
     ]
     
     try:
@@ -92,7 +93,7 @@ def main():
     # Save text vectorizer and LSTM model
     logging.info('Saving Vectorizer and Model')
     lstm_model.save_weights(model_path, save_format='h5')
-    utils.save_text_vectorizer(text_vectorizer, config.TEXT_VECTOR_FILENAME)
+    utils.save_text_vectorizer(text_vectorizer, vectorizer_path)
     logging.info('Done')
 
 if __name__ == "__main__":
