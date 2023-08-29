@@ -46,6 +46,5 @@ def preprocess_data(data_dir:Path):
     
 
 def clean_text(x):
-    x = re.sub(r'[^\w\s]', '', x)
-    x = x.lower()
-    return x
+    return re.sub(r'[^\w\s]', ' ', x.lower())
+    
