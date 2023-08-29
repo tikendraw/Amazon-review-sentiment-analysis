@@ -11,7 +11,6 @@ def preprocess_data(data_dir:Path):
     assert df['polarity'].max()==2
     assert df['polarity'].min()==1
 
-
     # Drop rows with null values
     df.drop_nulls()
 
