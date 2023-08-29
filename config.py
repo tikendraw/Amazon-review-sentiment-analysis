@@ -1,25 +1,33 @@
 import os
 from pathlib import Path
 
+cur_dir= Path(os.getcwd())
+
 # Data paths
-DATA_DIR = Path(os.getcwd()) / "dataset"
-PREPROCESSED_DATA_PATH = Path(DATA_DIR)/ "preprocessed_df.csv"
+DATA_DIR = cur_dir / "dataset"
+PREPROCESSED_DATA_PATH = DATA_DIR / "preprocessed_df.csv"
 
-# Model paths
-MODEL_DIR = Path(os.getcwd())/ "model"
+# Paths
+MODEL_DIR = cur_dir / "model"
+LOG_DIR = cur_dir / "logs"
+VECTORIZE_PATH = cur_dir / 'model' / 'text_vectorizer.pkl'
 
-LOG_DIR = Path(os.getcwd())/ "logs"
-       
-TEXT_VECTOR_FILENAME = "model/tv_layer.pkl"
-MODEL1_FILENAME = "model1.h5"
+TEXT_VECTOR_FILENAME = "text_vectorizer.pkl"
+MODEL_FILENAME = "model.h5"
+COUNTER_NAME  = "counter.pkl"
+
+# Text Vectorizer hyperparameters
+MAX_TOKEN = 300_000  # don't change this
+OUTPUT_SEQUENCE_LENGTH = 175 # don't change this
 
 # Model hyperparameters
-MAX_TOKEN = 100_000  # don't change this
-OUTPUT_SEQUENCE_LENGTH = 175 # don't change this
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 DIM = 8
-EPOCHS = 2
-TRAIN_SIZE = 0.01
-
+EPOCHS = 10
+TRAIN_SIZE = 0.05
+TEST_SIZE = 0.01
+LEARNING_RATE = 0.002
+RANDOM_STATE = 42
+SEED = 42
 #callback
 EARLY_STOPPING_PATIENCE = 2
