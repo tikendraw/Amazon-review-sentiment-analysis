@@ -1,11 +1,15 @@
-import re
-import pickle
-from tensorflow.keras.layers import TextVectorization
-import tensorflow as tf
 import logging
 import os
+import pickle
+import re
 from pathlib import Path
+
+import tensorflow as tf
+from tensorflow.keras.layers import TextVectorization
+
 from .data_preprocessing import clean_text
+
+
 # Configure logging
 def configure_logging(log_dir, log_filename, log_level=logging.INFO):
     
