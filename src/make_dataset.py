@@ -1,6 +1,7 @@
 # train.py
-import tensorflow as tf
+import sys
 
+import tensorflow as tf
 
 # def create_datasets(x_train, y_train, text_vectorizer, batch_size):
 #     print('Building slices...')
@@ -11,7 +12,6 @@ import tensorflow as tf
 #     train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
 #     return train_dataset
 
-import sys
 def sizeof_fmt(num, suffix='B'):
     ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
     for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
@@ -26,29 +26,7 @@ for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
 
 
 
-# def create_datasets(x, y, text_vectorizer, batch_size, buffer_size=10000):
-#     print('x shape : ', x.shape)
-#     print('y shape : ', y.shape)
-    
-#     # Convert numpy arrays to TensorFlow tensors
-#     print('Slicing...')
-    
-#     x = tf.data.Dataset.from_tensor_slices(x) 
-#     y = tf.data.Dataset.from_tensor_slices(y) 
 
-#     # Create a dataset from tensor slices and batch it
-#     print('Mapping...')
-#     train_dataset = tf.data.Dataset.zip((x, y))
-#     train_dataset = train_dataset.map(lambda x,y: (text_vectorizer(x)[0],y),tf.data.AUTOTUNE)
-#     train_dataset = train_dataset.batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
-    
-#     print('Shuffling...')
-#     # Shuffle after caching (if memory allows) and prefetch again
-#     if buffer_size > 0:
-#         train_dataset = train_dataset.shuffle(buffer_size)
-#     train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
-    
-#     return train_dataset
 
 def data_generator(x, y):
     num_samples = len(x)
@@ -56,7 +34,7 @@ def data_generator(x, y):
         yield x[i], y[i]
 
 
-def create_datasets(x, y, text_vectorizer, batch_size, shuffle=True, buffer_size=10000):
+def create_datasets(x, y, text_vectorizer, batch_size:int=32, shuffle:bool=True, n_repeat:int = None, buffer_size:int=1_000_000):
     
     generator = data_generator(x, y)
     print('Generating...')
@@ -73,6 +51,6 @@ def create_datasets(x, y, text_vectorizer, batch_size, shuffle=True, buffer_size
     
     if shuffle:
         train_dataset = train_dataset.shuffle(buffer_size)
-    train_dataset = train_dataset.cache().prefetch(tf.data.AUTOTUNE)
+    
     print('Done.')
-    return train_dataset
+    return train_dataset.cache().repeat(n_repeat).prefetch(tf.data.AUTOTUNE)
