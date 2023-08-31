@@ -1,8 +1,10 @@
 
 import re
-import polars as pl
 from pathlib import Path
+
+import polars as pl
 from sklearn.model_selection import train_test_split
+
 
 def preprocess_data(data_dir:Path):
     # Read the CSV file using Polars
@@ -45,6 +47,16 @@ def preprocess_data(data_dir:Path):
     
     
 
-def clean_text(x):
-    return re.sub(r'[^\w\s]', ' ', x.lower())
-    
+import re
+
+import contractions
+
+# Compile the regular expressions outside the function for better performance
+PUNCTUATION_REGEX = re.compile(r'[^\w\s]')
+DIGIT_REGEX = re.compile(r'\d')
+
+def clean_text(x: str) -> str:
+    expanded_text = contractions.fix(x)  # Expand contractions
+    cleaned_text = PUNCTUATION_REGEX.sub(' ', expanded_text.lower())  # Remove punctuation after lowering
+    cleaned_text = DIGIT_REGEX.sub('', cleaned_text)  # Remove digits
+    return cleaned_text
