@@ -13,7 +13,7 @@ LOG_DIR = cur_dir / "logs"
 VECTORIZE_PATH = cur_dir / 'model' / 'text_vectorizer.pkl'
 
 TEXT_VECTOR_FILENAME = "text_vectorizer.pkl"
-MODEL_FILENAME = "model.h5"
+MODEL_FILENAME = "full_model.h5"
 COUNTER_NAME  = "counter.pkl"
 
 # Text Vectorizer hyperparameters
