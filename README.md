@@ -10,6 +10,11 @@ Welcome to the Amazon Review Sentiment Analysis project! This repository contain
 <img src='https://img.shields.io/badge/Polars-CD792C.svg?style=for-the-badge&logo=Polars&logoColor=white'>
 
 
+## Checkout the App
+[Amazon Review Sentiment Analysis app here](https://huggingface.co/spaces/tikendraw/amazon-review-sentiment-analysis)
+![Amazon Review Sentiment Analysis](./src/app.png)
+
+
 ## Table of Contents
 * Introduction
 * Dataset
