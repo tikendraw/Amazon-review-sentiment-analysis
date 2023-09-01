@@ -17,7 +17,7 @@ MODEL_FILENAME = "model.h5"
 COUNTER_NAME  = "counter.pkl"
 
 # Text Vectorizer hyperparameters
-MAX_TOKEN = 300_000  # don't change this
+MAX_TOKEN = 100_000  # don't change this
 OUTPUT_SEQUENCE_LENGTH = 175 # don't change this
 
 # Model hyperparameters
