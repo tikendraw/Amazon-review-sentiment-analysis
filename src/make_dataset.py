@@ -26,16 +26,14 @@ for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
 
 
 
-
-
 def data_generator(x, y):
     num_samples = len(x)
     for i in range(num_samples):
         yield x[i], y[i]
 
 
-def create_datasets(x, y, text_vectorizer, batch_size:int=32, shuffle:bool=True, n_repeat:int = None, buffer_size:int=1_000_000):
-    
+def create_datasets(x, y, text_vectorizer, batch_size:int = 32, shuffle:bool=False, n_repeat:int = 0, buffer_size:int=1_000_000):
+
     generator = data_generator(x, y)
     print('Generating...')
     train_dataset = tf.data.Dataset.from_generator(
@@ -47,10 +45,16 @@ def create_datasets(x, y, text_vectorizer, batch_size:int=32, shuffle:bool=True,
     )
     print('Mapping...')
     train_dataset = train_dataset.map(lambda x, y: (tf.cast(text_vectorizer(x), tf.int32)[0], y[0]), tf.data.AUTOTUNE)
-    train_dataset = train_dataset.batch(batch_size) 
-    
+    train_dataset = train_dataset.batch(batch_size)
+
     if shuffle:
         train_dataset = train_dataset.shuffle(buffer_size)
+
+
+    if n_repeat > 0:
+        return train_dataset.cache().repeat(n_repeat).prefetch(tf.data.AUTOTUNE)
+    elif n_repeat == -1:
+        return train_dataset.cache().repeat().prefetch(tf.data.AUTOTUNE)
+    elif n_repeat == 0:
+        return train_dataset.cache().prefetch(tf.data.AUTOTUNE)
     
-    print('Done.')
-    return train_dataset.cache().repeat(n_repeat).prefetch(tf.data.AUTOTUNE)
