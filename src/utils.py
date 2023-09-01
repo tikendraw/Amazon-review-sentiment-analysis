@@ -44,9 +44,15 @@ def load_model(model, model_dir):
     return model.load_weights(model_dir)
 
 
+# to load text vectorizer
 def load_text_vectorizer(vectorizer_path):
     from_disk = pickle.load(open(vectorizer_path, "rb"))
     return TextVectorization.from_config(from_disk['config'])
+
+# Pickle the config and weights
+def save_text_vectorizer(vectorizer_path):
+    pickle.dump({'config': text_vectorizer.get_config()}
+                , open(vectorizer_path, "wb"))
 
 
 def load_model_and_vectorizer(vectorizer_path, model_path):
@@ -68,3 +74,4 @@ def predict_sentiment(title, text, text_vectorizer, lstm_model):
     sentiment_score = prediction[0][0]
     sentiment_label = 'Positive' if sentiment_score >= 0.5 else 'Negative'
     return sentiment_label, sentiment_score
+
