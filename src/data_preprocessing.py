@@ -54,9 +54,15 @@ import contractions
 # Compile the regular expressions outside the function for better performance
 PUNCTUATION_REGEX = re.compile(r'[^\w\s]')
 DIGIT_REGEX = re.compile(r'\d')
+SPECIAL_CHARACTERS_REGEX = re.compile(r'[#,@,&]')
+MULTIPLE_SPACES_REGEX = re.compile(r'\s+')
 
 def clean_text(x: str) -> str:
     expanded_text = contractions.fix(x)  # Expand contractions
-    cleaned_text = PUNCTUATION_REGEX.sub(' ', expanded_text.lower())  # Remove punctuation after lowering
-    cleaned_text = DIGIT_REGEX.sub('', cleaned_text)  # Remove digits
-    return cleaned_text
+    text = PUNCTUATION_REGEX.sub(' ', expanded_text.lower())  # Remove punctuation after lowering
+    text = DIGIT_REGEX.sub('', text)  # Remove digits
+    # Remove special characters (#,@,&)
+    text = SPECIAL_CHARACTERS_REGEX.sub('', text)
+    # Remove multiple spaces with single space
+    text = MULTIPLE_SPACES_REGEX.sub(' ', text)
+    return text.strip()
