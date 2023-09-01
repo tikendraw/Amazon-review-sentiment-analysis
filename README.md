@@ -60,6 +60,10 @@ _________________________________________________________________
 ```
 ## Model Performance
 
+| Model             | Accuracy           | Precision          | Recall             | F1                 | Description                                      |
+|-------------------|--------------------|--------------------|--------------------|--------------------|--------------------------------------------------|
+| model0: Naive Bayes | 84.79% | 84.82% | 84.79% | 84.79% |  |
+| model1: **LSTM**(in use)      | 94.06%   | 94.06% | 94.06% | 94.06% | small lstm model with vectorizer and embedding layer |
 
 ## Getting Started
 Follow these steps to get started with the project:
