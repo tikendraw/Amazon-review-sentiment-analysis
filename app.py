@@ -1,9 +1,12 @@
-import streamlit as st
 import os
-import tensorflow as tf
+import webbrowser
 from pathlib import Path
-from src import utils, data_preprocessing
+
+import streamlit as st
+import tensorflow as tf
+
 import config
+from src import data_preprocessing, utils
 
 MODEL_PATH = Path(config.MODEL_DIR) / config.MODEL_FILENAME
 VECTORIZER_PATH = Path(config.MODEL_DIR) / config.TEXT_VECTOR_FILENAME
@@ -49,23 +52,39 @@ if text_vectorizer is None or lstm_model is None:
 
 # Perform Sentiment Analysis
 if submit:
-    if len(review_text.strip()) > 1:        
-        with st.spinner():
-            sentiment_label, sentiment_score = predict_sentiment(review_title, review_text, text_vectorizer, lstm_model)
-            new_sentiment_score= abs(0.5 - sentiment_score)*2
+    with st.spinner():
+        sentiment_label, sentiment_score = predict_sentiment(review_title, review_text, text_vectorizer, lstm_model)
+        new_sentiment_score= abs(0.5 - sentiment_score)*2
 
-            if sentiment_score >=0.5:
-                st.success(f"Sentiment: {sentiment_label} (Score: {new_sentiment_score:.2f})")
-            else:
-                st.error(f"Sentiment: {sentiment_label} (Score: {new_sentiment_score:.2f})")
+        if sentiment_score >=0.5:
+            st.success(f"Sentiment: {sentiment_label} (Score: {new_sentiment_score:.2f})")
+        else:
+            st.error(f"Sentiment: {sentiment_label} (Score: {new_sentiment_score:.2f})")
                 
                 
 # Project Usage and Links
-st.sidebar.write("### Project Usage")
+st.sidebar.write("## Project Usage")
 st.sidebar.write("This project performs sentiment analysis on Amazon reviews to determine whether a review's sentiment is positive or negative.")
-st.sidebar.write("### GitHub Repository")
-st.sidebar.write("Find the code and details on my [GitHub repository](https://github.com/tikendraw/Amazon-review-sentiment-analysis).")
+st.sidebar.write("## GitHub Repository")
+st.sidebar.write("Source Code here [GitHub repository](https://github.com/tikendraw/Amazon-review-sentiment-analysis).")
 st.sidebar.write("If you have any feedback or suggestions, feel free to open an issue or a pull request.")
-st.sidebar.write("### Like the Project?")
+st.sidebar.write("## Like the Project?")
 st.sidebar.write("If you find this project interesting or useful, don't forget to give it a star on GitHub!")
-st.sidebar.markdown("![GitHub Stars](https://img.shields.io/github/stars/tikendraw/amazon-review-sentiment-analysis)")
+st.sidebar.markdown('![GitHub Repo stars](https://img.shields.io/github/stars/tikendraw/Amazon-review-sentiment-analysis?style=flat&logo=github&logoColor=white&label=Github%20Stars)', unsafe_allow_html=True)
+
+
+st.sidebar.write('### Created by:')
+c1, c2 = st.sidebar.columns([4,4])
+c1.image('./notebook/me.jpg', width=150)
+c2.write('### Tikendra Kumar Sahu')
+st.sidebar.write('Data Science Enthusiast')
+
+if st.sidebar.button('Github'):
+    webbrowser.open('https://github.com/tikendraw')
+
+if st.sidebar.button('LinkdIn'):
+    webbrowser.open('https://www.linkedin.com/in/tikendraw/')
+        
+if st.sidebar.button('Instagram'):
+    webbrowser.open('https://www.instagram.com/tikendraw/')
+    
