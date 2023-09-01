@@ -1,7 +1,13 @@
 # Amazon review sentiment analysis
-![GitHub Stars](https://img.shields.io/github/stars/tikendraw/amazon-review-sentiment-analysis)
+![GitHub Repo stars](https://img.shields.io/github/stars/tikendraw/Amazon-review-sentiment-analysis?style=flat&logo=github&logoColor=white&label=Github%20Stars)
 
 Welcome to the Amazon Review Sentiment Analysis project! This repository contains code for training a sentiment analysis model on a large dataset of Amazon reviews using Long Short-Term Memory (LSTM) neural networks. The trained model can predict the sentiment (positive or negative) of Amazon reviews. The dataset used for training consists of over 2 million reviews, totaling 2.6 GB of data.
+
+<img src='https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white'>
+
+<img src='https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white'>
+
+<img src='https://img.shields.io/badge/Polars-CD792C.svg?style=for-the-badge&logo=Polars&logoColor=white'>
 
 
 ## Table of Contents
